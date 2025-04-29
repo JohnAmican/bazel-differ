@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+
 	"github.com/ewhauser/bazel-differ/internal"
 	"github.com/ewhauser/bazel-differ/internal/cache"
 	"github.com/spf13/cobra"
@@ -29,7 +30,7 @@ $ bazel-differ get-targets -w path/to/workspace -b $(which bazel) -s START_HASH 
 		gitClient := internal.NewGitClient(WorkspacePath)
 		bazelClient := GetBazelClient()
 		cacheManager, err := cache.NewHashCacheManager(!cacheDisabled, cacheDir)
-		ExitIfError(err, "")
+		ExitIfError(err, "error creating hash cache manager")
 		targetHasher := internal.NewTargetHashingClient(GetBazelClient(), internal.Filesystem,
 			internal.NewRuleProvider())
 
@@ -37,10 +38,10 @@ $ bazel-differ get-targets -w path/to/workspace -b $(which bazel) -s START_HASH 
 		endingHashes := getHashes(finalRevision, gitClient, cacheManager, targetHasher)
 
 		targets, err := targetHasher.GetImpactedTargets(startingHashes, endingHashes)
-		ExitIfError(err, "")
+		ExitIfError(err, "error getting impacted targets")
 
 		queriedTargets, err := bazelClient.QueryTarget(query, targets)
-		ExitIfError(err, "")
+		ExitIfError(err, "error querying targets")
 		targetNames := targetHasher.GetNames(queriedTargets)
 
 		if Output != "" {
@@ -75,10 +76,10 @@ func getHashes(revision string, gitClient internal.GitClient, cacheManager cache
 	}
 
 	hashes, err = targetHasher.HashAllBazelTargetsAndSourcefiles(seedfilePaths)
-	ExitIfError(err, "")
+	ExitIfError(err, "error hashing files")
 
 	err = cacheManager.Put(context.Background(), revision, hashes)
-	ExitIfError(err, "")
+	ExitIfError(err, "error updating cache")
 
 	return hashes
 }

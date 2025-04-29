@@ -28,9 +28,9 @@ func NewBazelSourceFileTarget(name string, digest []byte, workingDirectory strin
 		sourceFile := path.Join(workingDirectory, filenamePath)
 		if _, err := os.Stat(sourceFile); !errors.Is(err, os.ErrNotExist) {
 			// path/to/whatever does not exist
-			contents, err := os.ReadFile(sourceFile)
-			if err != nil {
-				return nil, fmt.Errorf("error other than os.ErrNotExist: %w", err)
+			contents, err2 := os.ReadFile(sourceFile)
+			if err2 != nil {
+				return nil, fmt.Errorf("error other than os.ErrNotExist after %s: %w", err2, err)
 			}
 			finalDigest.Write(contents)
 		}

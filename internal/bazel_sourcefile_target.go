@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"sort"
 	"strings"
 )
 
@@ -26,13 +27,29 @@ func NewBazelSourceFileTarget(name string, digest []byte, workingDirectory strin
 		filenameSubstring := name[2:]
 		filenamePath := strings.Replace(filenameSubstring, ":", "/", 1)
 		sourceFile := path.Join(workingDirectory, filenamePath)
-		if _, err := os.Stat(sourceFile); !errors.Is(err, os.ErrNotExist) {
+		if fi, err := os.Stat(sourceFile); !errors.Is(err, os.ErrNotExist) {
 			// path/to/whatever does not exist
-			contents, err2 := os.ReadFile(sourceFile)
-			if err2 != nil {
-				return nil, fmt.Errorf("error other than os.ErrNotExist after %s: %w", err2, err)
+			if !fi.IsDir() {
+				contents, err := os.ReadFile(sourceFile)
+				if err != nil {
+					return nil, fmt.Errorf("error reading file: %w", err)
+				}
+				finalDigest.Write(contents)
+			} else {
+				m, err := MD5All(sourceFile)
+				if err != nil {
+					return nil, fmt.Errorf("error md5'ing all files in %s: %w", sourceFile, err)
+				}
+				var paths []string
+				for path := range m {
+					paths = append(paths, path)
+				}
+				sort.Strings(paths)
+				for _, path := range paths {
+					md5 := m[path]
+					finalDigest.Write(md5[:])
+				}
 			}
-			finalDigest.Write(contents)
 		}
 	}
 	finalDigest.Write(digest)

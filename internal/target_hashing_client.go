@@ -37,7 +37,7 @@ func (t targetHashingClient) HashAllBazelTargetsAndSourcefiles(seedFilePaths map
 	map[string]string, error) {
 	bazelSourcefileTargets, err := t.bazelClient.QueryAllSourceFileTargets()
 	if err != nil {
-		return nil, fmt.Errorf("error querying all source file targest: %w", err)
+		return nil, fmt.Errorf("error querying all source file targets: %w", err)
 	}
 
 	keys := make([]string, 0, len(seedFilePaths))

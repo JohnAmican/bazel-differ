@@ -3,6 +3,7 @@ package internal
 import (
 	"bytes"
 	"crypto/sha256"
+	"fmt"
 	"io/fs"
 	"log"
 	"os"
@@ -107,7 +108,7 @@ func (b bazelClient) processBazelSourcefileTargets(targets []*Target,
 			var sourceFileTarget, err = NewBazelSourceFileTarget(sourceFile.GetName(), digest.Sum(nil), workingDirectory)
 
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("error creating source file target: %w", err)
 			}
 
 			sourceTargets[*sourceFileTarget.Name()] = &sourceFileTarget

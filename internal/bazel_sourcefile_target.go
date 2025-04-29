@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"errors"
+	"fmt"
 	"os"
 	"path"
 	"strings"
@@ -29,7 +30,7 @@ func NewBazelSourceFileTarget(name string, digest []byte, workingDirectory strin
 			// path/to/whatever does not exist
 			contents, err := os.ReadFile(sourceFile)
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("error other than os.ErrNotExist: %w", err)
 			}
 			finalDigest.Write(contents)
 		}

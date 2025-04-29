@@ -11,6 +11,7 @@ go_library(
         "filesystem.go",
         "git_client.go",
         "io_utils.go",
+        "parallel.go",
         "proto_delimited.go",
         "target_hashing_client.go",
     ],
